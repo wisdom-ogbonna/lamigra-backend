@@ -7,6 +7,8 @@ import raidRoutes from './routes/raidRoutes.js';
 dotenv.config();
 const app = express();
 app.use(express.json());
+const PORT = process.env.PORT || 3000;
+
 
 // Register routes
 app.use('/api', smsRoutes);
@@ -16,5 +18,4 @@ app.get('/', (req, res) => {
   res.send('IceRaider backend running');
 });
 
-const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`✅ OTP API running on http://localhost:${PORT}`));
