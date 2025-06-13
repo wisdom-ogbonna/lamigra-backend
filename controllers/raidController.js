@@ -2,7 +2,7 @@ import { admin, db } from '../config/firebase.js';
 import { getDistance } from 'geolib';
 
 export const reportRaid = async (req, res) => {
-  const { description, latitude, longitude, radius = 5000 } = req.body;
+  const { description, latitude, longitude, radius = 5000,reportedAddress } = req.body;
   const authHeader = req.headers.authorization || '';
   const token = authHeader.split(' ')[1];
 
@@ -15,6 +15,7 @@ export const reportRaid = async (req, res) => {
       latitude,
       longitude,
       radius,
+      reportedAddress, // ✅ Save it here
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       reportedBy: userId,
     });
