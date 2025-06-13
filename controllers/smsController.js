@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import twilio from 'twilio';
 import { db } from '../config/firebase.js';
+import jwt from 'jsonwebtoken'; // 👈 import JWT
 
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 const otpStore = new Map(); // Temporary in-memory store
@@ -62,8 +63,20 @@ export const verifyCode = async (req, res) => {
     return res.status(400).json({ message: 'Invalid OTP' });
   }
 
+  // ✅ OTP is valid
   otpStore.delete(phoneNumber);
   await db.collection('otp_verifications').doc(phoneNumber).delete();
 
-  res.status(200).json({ message: 'OTP verified successfully' });
+  // ✅ Create a JWT with the phone number
+  const token = jwt.sign(
+    { phoneNumber },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRY || '10m' }
+  );
+
+  return res.status(200).json({
+    message: 'OTP verified successfully',
+    token // send to client
+  });
 };
+
