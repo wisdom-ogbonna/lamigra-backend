@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import smsRoutes from './routes/smsRoutes.js';
 import locationRoutes from './routes/locationRoutes.js';
 import raidRoutes from './routes/raidRoutes.js';
+import otpRoutes from "./routes/otp.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 3000;
 app.use('/api', smsRoutes);
 app.use('/api', locationRoutes);
 app.use('/api', raidRoutes);
+app.use("/api/otp", otpRoutes);
 
 // Root route for Render health check or manual test
 app.get('/', (req, res) => {

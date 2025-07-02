@@ -20,6 +20,7 @@
     "geolib": "^3.3.4",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.1",
+    "nodemailer": "^7.0.4",
     "twilio": "^5.6.0"
   }
 }
