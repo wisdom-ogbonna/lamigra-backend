@@ -24,7 +24,7 @@ export const sendOtp = async (req, res) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: "Your Iceraider Verification Code",
+    subject: "Your LAMIGRA Verification Code",
     text: `Your OTP code is: ${otp}`,
   };
 
