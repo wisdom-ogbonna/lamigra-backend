@@ -13,6 +13,13 @@ export const reportRaid = async (req, res) => {
     const decoded = await admin.auth().verifyIdToken(token);
     const userId = decoded.uid;
 
+    
+    // 🔹 Fetch user details from Firebase Auth
+    const userRecord = await admin.auth().getUser(userId);
+    const reportedByName = userRecord.displayName || "Anonymous";
+
+    
+
     let imageUrl = null;
 
     if (file) {
@@ -41,6 +48,8 @@ export const reportRaid = async (req, res) => {
       imageUrl, // 👈 store image URL
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       reportedBy: userId,
+      reportedByName, // 🔹 new
+
     });
 
     // same notification logic...
