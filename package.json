@@ -21,6 +21,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.1",
     "nodemailer": "^7.0.4",
+    "stripe": "^19.1.0",
     "twilio": "^5.6.0"
   }
 }
