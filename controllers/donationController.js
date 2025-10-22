@@ -14,6 +14,11 @@ export const createPaymentIntent = async (req, res) => {
       amount: parseInt(amount), 
       currency: "usd",
       payment_method_types: ["card"],
+      metadata: {
+        donor_name: donor?.name || "Anonymous",
+        donor_email: donor?.email || "N/A",
+      },
+      receipt_email: donor?.email, // Stripe will automatically send a receipt
     });
 
     res.json({ clientSecret: paymentIntent.client_secret });
