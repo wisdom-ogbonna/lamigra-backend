@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import smsRoutes from "./routes/smsRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
 import raidRoutes from "./routes/raidRoutes.js";
+import paypalRoutes from "./routes/paypalRoutes.js";
 import otpRoutes from "./routes/otp.js";
 import donationRoutes from "./routes/donationRoutes.js";
 import Stripe from "stripe";   // ✅ correct import
@@ -51,6 +52,8 @@ app.post("/api/donations/create-payment-intent", async (req, res) => {
 app.get("/", (req, res) => {
   res.send("✅ IceRaider backend is running");
 });
+
+app.use("/api/paypal", paypalRoutes);
 
 // Start server
 app.listen(PORT, () => {
