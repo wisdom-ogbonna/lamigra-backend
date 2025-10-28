@@ -5,6 +5,7 @@ import locationRoutes from "./routes/locationRoutes.js";
 import raidRoutes from "./routes/raidRoutes.js";
 import paypalRoutes from "./routes/paypalRoutes.js";
 import otpRoutes from "./routes/otp.js";
+import cors from "cors"; // ✅ import cors
 import donationRoutes from "./routes/donationRoutes.js";
 import Stripe from "stripe";   // ✅ correct import
 import productRoutes from "./routes/productRoutes.js";
@@ -15,6 +16,8 @@ dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
+// ✅ Allow requests from all domains (CORS)
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 // Let Render provide the correct port
