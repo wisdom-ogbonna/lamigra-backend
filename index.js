@@ -7,6 +7,7 @@ import paypalRoutes from "./routes/paypalRoutes.js";
 import otpRoutes from "./routes/otp.js";
 import donationRoutes from "./routes/donationRoutes.js";
 import Stripe from "stripe";   // ✅ correct import
+import productRoutes from "./routes/productRoutes.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use("/api", locationRoutes);
 app.use("/api", raidRoutes);
 app.use("/api/otp", otpRoutes);
 app.use("/api", donationRoutes); // optional if you move donation logic into routes
+app.use("/api/products", productRoutes);
 
 // Donation endpoint
 app.post("/api/donations/create-payment-intent", async (req, res) => {
