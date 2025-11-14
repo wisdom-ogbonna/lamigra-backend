@@ -4,7 +4,7 @@ import express from "express";
 import {
   createPaypalDonation,
   capturePaypalDonation,
-} from "../controllers/paypaldonationController.js";
+} from "../controllers/paypalDonationController.js";
 
 const router = express.Router();
 
