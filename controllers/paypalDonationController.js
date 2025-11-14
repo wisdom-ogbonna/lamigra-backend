@@ -5,7 +5,9 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// PAYPAL ENVIRONMENT
+// -------------------------------
+// ✅ PAYPAL ENVIRONMENT SETUP
+// -------------------------------
 const environment =
   process.env.PAYPAL_MODE === "live"
     ? new paypal.core.LiveEnvironment(
@@ -19,38 +21,50 @@ const environment =
 
 const client = new paypal.core.PayPalHttpClient(environment);
 
-// --------------------------------------------------------
+// -------------------------------
 // CREATE DONATION ORDER
-// --------------------------------------------------------
+// -------------------------------
 export const createPaypalDonation = async (req, res) => {
   try {
     const { amount, currency = "USD", description = "Donation" } = req.body;
 
     if (!amount) {
-      return res.status(400).json({ message: "Donation amount required" });
+      return res.status(400).json({ message: "Donation amount is required" });
     }
 
+    // Create PayPal order
     const request = new paypal.orders.OrdersCreateRequest();
     request.prefer("return=representation");
-
     request.requestBody({
       intent: "CAPTURE",
       purchase_units: [
         {
+          amount: { currency_code: currency, value: amount },
           description,
-          amount: {
-            currency_code: currency,
-            value: amount,
-          },
         },
       ],
+      application_context: {
+        return_url: `${process.env.BACKEND_URL}/api/donation/paypal/success`,
+        cancel_url: `${process.env.BACKEND_URL}/api/donation/paypal/cancel`,
+        user_action: "PAY_NOW",
+      },
     });
 
     const order = await client.execute(request);
 
+    // Extract approval link
+    const approvalLink = order.result.links.find(
+      (link) => link.rel === "approve"
+    )?.href;
+
+    if (!approvalLink) {
+      return res.status(500).json({ message: "No approval link returned by PayPal" });
+    }
+
     res.status(201).json({
       success: true,
       orderID: order.result.id,
+      approvalLink,
     });
   } catch (error) {
     console.error("PayPal Create Order Error:", error);
@@ -58,9 +72,9 @@ export const createPaypalDonation = async (req, res) => {
   }
 };
 
-// --------------------------------------------------------
+// -------------------------------
 // CAPTURE DONATION PAYMENT
-// --------------------------------------------------------
+// -------------------------------
 export const capturePaypalDonation = async (req, res) => {
   try {
     const { orderID } = req.body;
