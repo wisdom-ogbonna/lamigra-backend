@@ -3,15 +3,14 @@ import stripe from "../config/stripe.js";
 
 export const createPaymentIntent = async (req, res) => {
   try {
-   const { amount, name, email } = req.body;
-
+    const { amount, name, email } = req.body;
 
     if (!amount || isNaN(amount)) {
       return res.status(400).json({ error: "Invalid donation amount" });
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: parseInt(amount), // cents
+      amount: parseInt(amount),
       currency: "usd",
       payment_method_types: ["card"],
       metadata: {
