@@ -7,22 +7,30 @@ export const addProduct = async (req, res) => {
   try {
     const { name, description, price, youtubeId, tiktokUrl } = req.body;
 
-    // Basic validation
+    // 1️⃣ Basic validation
     if (!name || !price) {
       return res.status(400).json({ message: "Name and price are required" });
     }
 
-    // At least one video must be included
+    // 2️⃣ Must provide ONE video
     if (!youtubeId && !tiktokUrl) {
       return res.status(400).json({
-        message: "Please provide either a YouTube ID or TikTok URL",
+        message: "Provide either YouTube ID or TikTok URL",
       });
     }
 
+    // 3️⃣ Decide video type
+    let videoType = null;
+
+    if (youtubeId) videoType = "youtube";
+    if (tiktokUrl) videoType = "tiktok";
+
+    // 4️⃣ Save product
     const newProduct = {
       name,
       description: description || "",
       price,
+      videoType,          // 👈 important
       youtubeId: youtubeId || null,
       tiktokUrl: tiktokUrl || null,
       createdAt: new Date(),
@@ -35,6 +43,7 @@ export const addProduct = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // 📦 Get All Products
 export const getProducts = async (req, res) => {
