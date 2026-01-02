@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 
 export const reportRaid = async (req, res) => {
-  const { description, latitude, longitude, radius = 5000, reportedAddress,category } = req.body;
+  const { description, latitude, longitude, radius = 5000, reportedAddress,category,sourceLink,carPlateNumber } = req.body;
   const file = req.file; // 👈 Multer gives you this
   const authHeader = req.headers.authorization || '';
   const token = authHeader.split(' ')[1];
@@ -45,6 +45,8 @@ export const reportRaid = async (req, res) => {
       radius,
       reportedAddress,
       category,
+      sourceLink: sourceLink || null,
+      carPlateNumber: carPlateNumber || null,
       imageUrl, // 👈 store image URL
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       reportedBy: userId,
