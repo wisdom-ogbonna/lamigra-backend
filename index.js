@@ -10,7 +10,7 @@ import donationRoutes from "./routes/donationRoutes.js";
 import Stripe from "stripe";   // ✅ correct import
 import productRoutes from "./routes/productRoutes.js";
 import paypalDonationRoutes from "./routes/paypalDonationRoutes.js"; // PayPal
-
+import pushRoutes from "./routes/pushRoutes.js";
 dotenv.config();
 
 // ✅ Initialize Stripe once
@@ -26,6 +26,8 @@ const PORT = process.env.PORT || 3000;
 
 // Register routes
 app.use("/api", smsRoutes);
+app.use("/api", pushRoutes);
+
 app.use("/api", locationRoutes);
 app.use("/api", raidRoutes);
 app.use("/api/otp", otpRoutes);

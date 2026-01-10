@@ -16,6 +16,7 @@
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
+    "expo-server-sdk": "^4.0.0",
     "express": "^5.1.0",
     "firebase-admin": "^13.4.0",
     "geolib": "^3.3.4",
@@ -23,8 +24,8 @@
     "multer": "^2.0.1",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.4",
+    "react-native-webview": "13.12.5",
     "stripe": "^19.1.0",
-    "twilio": "^5.6.0",
-    "react-native-webview": "13.12.5"
+    "twilio": "^5.6.0"
   }
 }
