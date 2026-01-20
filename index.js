@@ -11,6 +11,8 @@ import Stripe from "stripe";   // ✅ correct import
 import productRoutes from "./routes/productRoutes.js";
 import paypalDonationRoutes from "./routes/paypalDonationRoutes.js"; // PayPal
 import pushRoutes from "./routes/pushRoutes.js";
+import cleanupRoutes from "./routes/cleanupRoutes.js";
+
 dotenv.config();
 
 // ✅ Initialize Stripe once
@@ -35,6 +37,8 @@ app.use("/api", donationRoutes); // optional if you move donation logic into rou
 app.use("/api/products", productRoutes);
 // Use PayPal donation routes
 app.use("/api/donation/paypal", paypalDonationRoutes);
+app.use("/api", cleanupRoutes);
+
 
 // Root route for Render health check or manual test
 app.get("/", (req, res) => {
