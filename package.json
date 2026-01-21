@@ -21,7 +21,7 @@
     "firebase-admin": "^13.4.0",
     "geolib": "^3.3.4",
     "jsonwebtoken": "^9.0.2",
-    "multer": "^2.0.1",
+    "multer": "^2.0.2",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.4",
     "react-native-webview": "13.12.5",

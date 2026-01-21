@@ -1,10 +1,10 @@
-import express from 'express';
-import multer from 'multer';
-import { reportRaid } from '../controllers/raidController.js';
+import express from "express";
+import { upload } from "../middlewares/upload.js";
+import { reportRaid } from "../controllers/raidController.js";
 
 const router = express.Router();
-const upload = multer(); // memory storage by default
 
-router.post('/report-raid', upload.single('file'), reportRaid); // ✅ attach multer middleware
+// 👇 matches your frontend FormData.append("files", ...)
+router.post("/report-raid", upload.array("files"), reportRaid);
 
 export default router;

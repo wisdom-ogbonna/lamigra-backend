@@ -1,6 +1,4 @@
 import { admin, db } from "../config/firebase.js";
-import { getDistance } from "geolib";
-import fetch from "node-fetch";
 import { v4 as uuidv4 } from "uuid";
 
 export const reportRaid = async (req, res) => {
@@ -14,63 +12,72 @@ export const reportRaid = async (req, res) => {
     sourceLink,
     carPlateNumber,
   } = req.body;
-  const file = req.file; // 👈 Multer gives you this
+
+  const files = req.files; // 👈 multiple images
   const authHeader = req.headers.authorization || "";
   const token = authHeader.split(" ")[1];
 
   try {
+    if (!token) {
+      return res.status(401).json({ error: "No token provided" });
+    }
+
+    // 🔐 Verify Firebase user
     const decoded = await admin.auth().verifyIdToken(token);
     const userId = decoded.uid;
 
-    // 🔹 Fetch user details from Firebase Auth
     const userRecord = await admin.auth().getUser(userId);
     const reportedByName = userRecord.displayName || "Anonymous";
 
-    let imageUrl = null;
+    const bucket = admin.storage().bucket();
+    const imageUrls = [];
 
-    if (file) {
-      const fileName = `raids/${uuidv4()}_${file.originalname}`;
-      const bucket = admin.storage().bucket(); // 👈 make sure storage is configured in firebase.js
+    // 📸 Upload images
+    if (files && files.length > 0) {
+      for (const file of files) {
+        const fileName = `raids/${uuidv4()}_${file.originalname}`;
+        const fileUpload = bucket.file(fileName);
 
-      const fileUpload = bucket.file(fileName);
-      await fileUpload.save(file.buffer, {
-        metadata: {
-          contentType: file.mimetype,
-        },
-      });
-      await fileUpload.makePublic();
+        await fileUpload.save(file.buffer, {
+          metadata: { contentType: file.mimetype },
+        });
 
-      imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+        await fileUpload.makePublic();
+
+        const imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+        imageUrls.push(imageUrl);
+      }
     }
 
-    // 🔥 Auto-delete after 5 hours
+    // ⏳ Auto-delete after 5 hours
     const FIVE_HOURS = 5 * 60 * 60 * 1000;
-    const expiresAt = admin.firestore.Timestamp.fromMillis(
-      Date.now() + FIVE_HOURS
-    );
+    const expiresAt = admin.firestore.Timestamp.fromMillis(Date.now() + FIVE_HOURS);
 
+    // 🔥 Save raid
     const raidRef = await db.collection("ice_raids").add({
       description,
-      latitude,
-      longitude,
-      radius,
+      latitude: Number(latitude),
+      longitude: Number(longitude),
+      radius: Number(radius),
       reportedAddress,
       category,
       sourceLink: sourceLink || null,
       carPlateNumber: carPlateNumber || null,
-      imageUrl, // 👈 store image URL
+      imageUrls,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       expiresAt,
       reportedBy: userId,
-      reportedByName, // 🔹 new
+      reportedByName,
     });
 
-    res.send({
-      status: "Raid reported and notifications sent",
+    return res.json({
+      success: true,
+      message: "Raid reported successfully",
       raidId: raidRef.id,
+      imageUrls,
     });
   } catch (err) {
     console.error("❌ Error in reportRaid:", err);
-    res.status(401).send("Unauthorized");
+    return res.status(401).json({ error: "Unauthorized" });
   }
 };
