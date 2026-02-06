@@ -1,9 +1,9 @@
 import express from "express";
-import { savePushToken, sendBroadcastNotification } from "../controllers/pushController.js";
+import { savePushToken, sendNearbyNotification } from "../controllers/pushController.js";
 
 const router = express.Router();
 
 router.post("/save-push-token", savePushToken);
-router.post("/send-notification", sendBroadcastNotification);
+router.post("/send-notification", sendNearbyNotification);
 
 export default router;
