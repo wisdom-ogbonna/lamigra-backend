@@ -7,14 +7,31 @@ import { geohashQueryBounds, distanceBetween } from "geofire-common";
 const expo = new Expo();
 
 const RAID_MESSAGES = {
-  checkpoint: "🚗 Vehicle left behind, danger may be near — stay alert, stay clear.",
-  second_hand: "🚨 Raid activity around the bend — avoid the area, warn a friend.",
-  suspicious: "⚠️ Checkpoint ahead, slow your pace — stay sharp and mind the place.",
-  ice_agents: "👀 Agents nearby, eyes on the scene — stay cautious, stay unseen.",
-  sos: "🚨 Danger is close, don’t delay — move to safety right away."
+  sos: {
+    title: "🚨 Alert ‼️ – SOS",
+    body: "⚠️ Urgent assistance requested nearby.",
+  },
+
+  suspicious: {
+    title: "🚨 Alert ‼️ – Suspicious Vehicle",
+    body: "🚘 Suspicious vehicle reported in your area.",
+  },
+
+  ice_agents: {
+    title: "🚨 Alert ‼️ – Law Enforcement Activity",
+    body: "👮 Activity reported nearby.",
+  },
+
+  checkpoint: {
+    title: "🚨 Alert ‼️ – Checkpoint / Road Closure",
+    body: "🚧 Road activity reported nearby. Expect delays.",
+  },
+
+  second_hand: {
+    title: "🚨 Alert ‼️ – Abandoned Vehicle",
+    body: "🚗 Unattended vehicle reported near you.",
+  },
 };
-
-
 
 export const savePushToken = async (req, res) => {
   try {
@@ -26,15 +43,18 @@ export const savePushToken = async (req, res) => {
 
     const geohash = geohashForLocation([latitude, longitude]);
 
-    await db.collection("users").doc(userId).set(
-      {
-        pushToken,
-        location: new admin.firestore.GeoPoint(latitude, longitude),
-        geohash,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      },
-      { merge: true }
-    );
+    await db
+      .collection("users")
+      .doc(userId)
+      .set(
+        {
+          pushToken,
+          location: new admin.firestore.GeoPoint(latitude, longitude),
+          geohash,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
 
     res.json({ success: true });
   } catch (err) {
@@ -42,21 +62,20 @@ export const savePushToken = async (req, res) => {
   }
 };
 
-
-
-
-
 export const sendNearbyNotification = async (req, res) => {
   try {
-   const { title, category, latitude, longitude } = req.body;
+    const { title, category, latitude, longitude } = req.body;
 
-
-   if (!title || !category || latitude == null || longitude == null) {
-
+    if (!title || !category || latitude == null || longitude == null) {
       return res.status(400).json({ error: "Missing fields" });
     }
 
-  const body = RAID_MESSAGES[category] || RAID_MESSAGES.default;
+    const alert = RAID_MESSAGES[category];
+
+    if (!alert) {
+      return res.status(400).json({ error: "Invalid category" });
+    }
+
     const center = [latitude, longitude];
     const radiusInKm = 8.05; // 🎯 5 miles
 
@@ -64,7 +83,8 @@ export const sendNearbyNotification = async (req, res) => {
     const promises = [];
 
     for (const b of bounds) {
-      const q = db.collection("users")
+      const q = db
+        .collection("users")
         .orderBy("geohash")
         .startAt(b[0])
         .endAt(b[1]);
@@ -76,8 +96,8 @@ export const sendNearbyNotification = async (req, res) => {
 
     let messages = [];
 
-    snapshots.forEach(snap => {
-      snap.docs.forEach(doc => {
+    snapshots.forEach((snap) => {
+      snap.docs.forEach((doc) => {
         const data = doc.data();
         if (!data.location) return;
 
@@ -90,8 +110,8 @@ export const sendNearbyNotification = async (req, res) => {
           messages.push({
             to: data.pushToken,
             sound: "default",
-            title,
-            body,
+            title: alert.title,
+            body: alert.body,
           });
         }
       });
@@ -103,7 +123,6 @@ export const sendNearbyNotification = async (req, res) => {
     }
 
     res.json({ success: true, sent: messages.length });
-
   } catch (error) {
     console.error("Nearby push error:", error);
     res.status(500).json({ error: error.message });
